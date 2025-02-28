@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import keyboard
+import os  # Added for dynamic port handling
 
 app = Flask(__name__)
 CORS(app)
@@ -16,11 +16,12 @@ def receive_data():
     global latest_gesture
     latest_gesture = request.data.decode("utf-8").strip()
     print(f"Received Gesture: {latest_gesture}")
-    return "Data Received", 200
+    return jsonify({"message": "Data Received"}), 200
 
 @app.route('/get_latest_gesture', methods=['GET'])
 def get_latest_gesture():
-    return latest_gesture  # Return latest received gesture
+    return jsonify({"gesture": latest_gesture})  # Return latest received gesture as JSON
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    port = int(os.environ.get("PORT", 10000))  # Use dynamic port for Render
+    app.run(host='0.0.0.0', port=port)
