@@ -4,7 +4,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-latest_gesture = ""  # Store last received gesture
+latest_gesture = ""  
 
 @app.route('/')
 def home():
@@ -13,13 +13,19 @@ def home():
 @app.route('/data', methods=['POST'])
 def receive_data():
     global latest_gesture
-    latest_gesture = request.data.decode("utf-8").strip()
-    print(f"Received Gesture: {latest_gesture}")
+    data = request.get_data(as_text=True).strip()
+    
+    if data.startswith("DISTANCE:"):
+        print(f"Received Distance Data: {data}")
+    else:
+        latest_gesture = data
+        print(f"Received Gesture: {latest_gesture}")
+    
     return jsonify({"message": "Data Received"}), 200
 
 @app.route('/get_latest_gesture', methods=['GET'])
 def get_latest_gesture():
-    return jsonify({"gesture": latest_gesture})  # Return latest received gesture as JSON
+    return jsonify({"gesture": latest_gesture})  
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
